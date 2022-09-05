@@ -6,7 +6,26 @@ We will be building an API for the purpose of accessing application data program
 
 Your database will be PSQL, and you will interact with it using [node-postgres](https://node-postgres.com/).
 
+## Setup
+
+### Connect to the databases locally
+
 You will need to create two .env files for your project: .env.test and .env.development. Into each, add PGDATABASE=<database_name_here>, with the correct database name for that environment (see /db/setup.sql for the database names). Double check that these .env files are .gitignored.
+
+## 1. GET /api/topics
+
+Responds with:
+
+an array of topic objects, each of which should have the following properties:
+
+```
+slug
+description
+```
+
+As this is the first endpoint you will need to set up your testing suite.
+
+Errors handled.
 
 ## Husky
 
