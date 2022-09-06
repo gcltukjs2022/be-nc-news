@@ -45,7 +45,7 @@ describe("GET articles", () => {
       .expect(200)
       .then(({ body }) => {
         expect(typeof body.article).toBe("object");
-        expect(Object.keys(body.article).length).toBe(7);
+        expect(Object.keys(body.article).length).toBe(8);
 
         expect(body.article).toMatchObject({
           author: "butter_bridge",
@@ -55,6 +55,7 @@ describe("GET articles", () => {
           topic: "mitch",
           created_at: "2020-07-09T20:11:00.000Z",
           votes: 100,
+          comment_count: 11,
         });
       });
   });
