@@ -119,6 +119,17 @@ describe("PATCH article", () => {
         expect(body.article).toEqual(updatedArticle);
       });
   });
+  test("400: inc_vote key is not found", () => {
+    const propToUpdate = { votes: 100 };
+
+    return request(app)
+      .patch("/api/articles/1")
+      .send(propToUpdate)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("inc_vote key is not found");
+      });
+  });
   test("400: Wrong data type", () => {
     const propToUpdate = { inc_votes: "one hundred" };
 
@@ -128,6 +139,17 @@ describe("PATCH article", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Wrong data type");
+      });
+  });
+  test("400: Invalid article_id", () => {
+    const propToUpdate = { inc_votes: 100 };
+
+    return request(app)
+      .patch("/api/articles/one")
+      .send(propToUpdate)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid article_id");
       });
   });
   test("404: article_id does not exist", () => {
