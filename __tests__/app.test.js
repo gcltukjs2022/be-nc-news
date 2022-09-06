@@ -3,6 +3,7 @@ const app = require("../app");
 const request = require("supertest");
 const db = require("../db/connection");
 const testData = require("../db/data/test-data/index");
+const jestSorted = require("jest-sorted");
 
 beforeEach(() => {
   return seed(testData);
@@ -162,6 +163,66 @@ describe("PATCH article", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("article_id does not exist");
+      });
+  });
+});
+
+describe("GET articles", () => {
+  test("200: get all articles including property comment_count", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(body.articles.length > 0).toBe(true);
+
+        body.articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              body: expect.any(String),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+        expect(body.articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("200: get articles filtered by a valid custom query", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(body.articles.length > 0).toBe(true);
+        expect(body.articles).toBeSortedBy("created_at", { descending: true });
+
+        body.articles.forEach((article) => {
+          expect(article).toEqual({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            body: expect.any(String),
+            topic: "mitch",
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("400: invalid query", () => {
+    return request(app)
+      .get("/api/articles?topic=not_topic")
+      .expect(400)
+      .then(({ body }) => {
+        console.log(body);
+        expect(body.msg).toBe("topic is not exist");
       });
   });
 });
