@@ -97,3 +97,48 @@ describe("GET users", () => {
       });
   });
 });
+
+describe("PATCH article", () => {
+  test("200: update article votes by article_id", () => {
+    const propToUpdate = { inc_votes: 100 };
+    const updatedArticle = {
+      article_id: 1,
+      title: "Living in the shadow of a great man",
+      topic: "mitch",
+      author: "butter_bridge",
+      body: "I find this existence challenging",
+      created_at: "2020-07-09T20:11:00.000Z",
+      votes: 200,
+    };
+
+    return request(app)
+      .patch("/api/articles/1")
+      .send(propToUpdate)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toEqual(updatedArticle);
+      });
+  });
+  test("400: Wrong data type", () => {
+    const propToUpdate = { inc_votes: "one hundred" };
+
+    return request(app)
+      .patch("/api/articles/1")
+      .send(propToUpdate)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Wrong data type");
+      });
+  });
+  test("404: article_id does not exist", () => {
+    const propToUpdate = { inc_votes: 100 };
+
+    return request(app)
+      .patch("/api/articles/9999")
+      .send(propToUpdate)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article_id does not exist");
+      });
+  });
+});

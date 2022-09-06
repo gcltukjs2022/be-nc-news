@@ -11,3 +11,30 @@ exports.readArticleById = (article_id) => {
       }
     });
 };
+
+exports.updateArticleById = (article_id, inc_votes) => {
+  if (typeof inc_votes === "number") {
+    return db
+      .query(
+        `
+  UPDATE articles
+  SET votes = votes + ${inc_votes}
+  WHERE article_id=$1
+  RETURNING *
+  `,
+        [article_id]
+      )
+      .then((result) => {
+        if (result.rowCount === 0) {
+          return Promise.reject({
+            status: 404,
+            msg: "article_id does not exist",
+          });
+        } else {
+          return result.rows[0];
+        }
+      });
+  } else {
+    return Promise.reject({ status: 400, msg: "Wrong data type" });
+  }
+};
