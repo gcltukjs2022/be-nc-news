@@ -2,10 +2,22 @@ const db = require("../db/connection");
 
 exports.readArticleById = (article_id) => {
   return db
-    .query(`SELECT * FROM articles WHERE article_id=$1`, [article_id])
+    .query(
+      `
+  SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.body, articles.created_at, articles.votes, CAST(COUNT(comments.article_id) AS INT) AS comment_count FROM articles
+  JOIN comments ON comments.article_id = articles.article_id
+  WHERE articles.article_id=$1
+  GROUP BY articles.article_id
+  
+  `,
+      [article_id]
+    )
     .then((result) => {
       if (result.rowCount === 0) {
-        return Promise.reject({ status: 404, msg: "article_id is not found" });
+        return Promise.reject({
+          status: 404,
+          msg: "article_id is not found",
+        });
       } else {
         return result.rows[0];
       }
