@@ -189,6 +189,15 @@ describe("GET articles", () => {
             })
           );
         });
+      });
+  });
+  test("200: get all articles by descending order", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(body.articles.length > 0).toBe(true);
         expect(body.articles).toBeSortedBy("created_at", { descending: true });
       });
   });
@@ -228,6 +237,14 @@ describe("GET articles", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Topic does not exist");
+      });
+  });
+  test("400: invalid topic", () => {
+    return request(app)
+      .get("/api/articles?topic=")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid topic");
       });
   });
 });

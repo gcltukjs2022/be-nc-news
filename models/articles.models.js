@@ -61,6 +61,10 @@ exports.readArticles = (topic) => {
   `;
   const queryValues = [];
 
+  if (topic !== undefined && topic.length === 0) {
+    return Promise.reject({ status: 400, msg: "Invalid topic" });
+  }
+
   if (topic) {
     queryStr += `WHERE topic = $1`;
     queryValues.push(topic);
@@ -70,22 +74,30 @@ exports.readArticles = (topic) => {
   GROUP BY articles.article_id
   ORDER BY created_at DESC`;
 
-  return db.query(queryStr, queryValues).then((result) => {
-    if (result.rowCount === 0) {
-      return db
-        .query(`SELECT * FROM topics WHERE slug=$1`, [topic])
-        .then((result) => {
-          if (result.rows.length > 0) {
-            return Promise.reject({
-              status: 200,
-              msg: "No article with this topic",
-            });
-          } else {
-            return Promise.reject({ status: 404, msg: "Topic does not exist" });
-          }
-        });
-    } else {
-      return result.rows;
-    }
-  });
+  return db
+    .query(queryStr, queryValues)
+    .then(({ rows, rowCount }) => {
+      if (rowCount === 0) {
+        return Promise.all([
+          rows,
+          db.query(`SELECT * FROM topics WHERE slug=$1`, [topic]),
+        ]);
+      } else {
+        return Promise.all([rows]);
+      }
+    })
+    .then(([rows, topicsResult]) => {
+      if (topicsResult !== undefined) {
+        if (topicsResult.rowCount > 0) {
+          return Promise.reject({
+            status: 200,
+            msg: "No article with this topic",
+          });
+        } else {
+          return Promise.reject({ status: 404, msg: "Topic does not exist" });
+        }
+      } else {
+        return rows;
+      }
+    });
 };
