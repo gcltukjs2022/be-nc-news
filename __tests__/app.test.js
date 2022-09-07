@@ -246,3 +246,52 @@ describe("GET articles", () => {
       });
   });
 });
+
+describe("GET comments", () => {
+  test("200: get comments by article_id", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.comments)).toBe(true);
+        expect(body.comments.length).toBe(11);
+
+        body.comments.forEach((comment) => {
+          expect(Object.keys(comment).length).toBe(5);
+          expect(comment).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              author: expect.any(String),
+              body: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("200: no comments with the provided article_id", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No comments with this article_id");
+      });
+  });
+  test("404: article_id does not exist", () => {
+    return request(app)
+      .get("/api/articles/999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article_id does not exist");
+      });
+  });
+  test("400: invalid article_id", () => {
+    return request(app)
+      .get("/api/articles/one/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid article_id");
+      });
+  });
+});

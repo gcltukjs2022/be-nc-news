@@ -99,3 +99,35 @@ exports.readArticles = (topic) => {
       return rows;
     });
 };
+
+exports.readCommentsByArticleId = (article_id) => {
+  return db
+    .query(
+      `SELECT comment_id, body, author, votes, created_at FROM comments WHERE article_id=$1;`,
+      [article_id]
+    )
+    .then(({ rows, rowCount }) => {
+      if (rowCount === 0) {
+        return Promise.all([
+          rows,
+          db.query(`SELECT * FROM articles WHERE article_id=$1;`, [article_id]),
+        ]);
+      }
+      return Promise.all([rows]);
+    })
+    .then(([rows, articlesResult]) => {
+      if (articlesResult !== undefined) {
+        if (articlesResult.rowCount > 0) {
+          return Promise.reject({
+            status: 200,
+            msg: "No comments with this article_id",
+          });
+        }
+        return Promise.reject({
+          status: 404,
+          msg: "article_id does not exist",
+        });
+      }
+      return rows;
+    });
+};
