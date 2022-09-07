@@ -83,9 +83,8 @@ exports.readArticles = (topic) => {
           rows,
           db.query(`SELECT * FROM topics WHERE slug=$1;`, [topic]),
         ]);
-      } else {
-        return Promise.all([rows]);
       }
+      return Promise.all([rows]);
     })
     .then(([rows, topicsResult]) => {
       if (topicsResult !== undefined) {
@@ -94,11 +93,9 @@ exports.readArticles = (topic) => {
             status: 200,
             msg: "No article with this topic",
           });
-        } else {
-          return Promise.reject({ status: 404, msg: "Topic does not exist" });
         }
-      } else {
-        return rows;
+        return Promise.reject({ status: 404, msg: "Topic does not exist" });
       }
+      return rows;
     });
 };
