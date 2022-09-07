@@ -3,6 +3,7 @@ const app = require("../app");
 const request = require("supertest");
 const db = require("../db/connection");
 const testData = require("../db/data/test-data/index");
+const jestSorted = require("jest-sorted");
 
 beforeEach(() => {
   return seed(testData);
@@ -38,7 +39,7 @@ describe("GET topics", () => {
   });
 });
 
-describe("GET articles", () => {
+describe("GET article by id", () => {
   test("200: gets article by id", () => {
     return request(app)
       .get("/api/articles/1")
@@ -162,6 +163,86 @@ describe("PATCH article", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("article_id does not exist");
+      });
+  });
+});
+
+describe("GET articles", () => {
+  test("200: get all articles including property comment_count", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(body.articles.length).toBe(12);
+
+        body.articles.forEach((article) => {
+          expect(article).toEqual(
+            expect.objectContaining({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("200: get all articles by descending order", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("200: get articles filtered by a valid custom query", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(body.articles.length).toBe(11);
+        expect(body.articles).toBeSortedBy("created_at", { descending: true });
+
+        body.articles.forEach((article) => {
+          expect(article).toEqual({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: "mitch",
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("200: topic exists but empty", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No article with this topic");
+      });
+  });
+  test("404: topic does not exist", () => {
+    return request(app)
+      .get("/api/articles?topic=not_topic")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Topic does not exist");
+      });
+  });
+  test("400: invalid topic", () => {
+    return request(app)
+      .get("/api/articles?topic=")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid topic");
       });
   });
 });
