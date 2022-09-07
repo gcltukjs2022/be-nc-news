@@ -39,7 +39,7 @@ describe("GET topics", () => {
   });
 });
 
-describe("GET articles", () => {
+describe("GET article by id", () => {
   test("200: gets article by id", () => {
     return request(app)
       .get("/api/articles/1")
@@ -182,7 +182,6 @@ describe("GET articles", () => {
               author: expect.any(String),
               title: expect.any(String),
               article_id: expect.any(Number),
-              body: expect.any(String),
               topic: expect.any(String),
               created_at: expect.any(String),
               votes: expect.any(Number),
@@ -207,7 +206,6 @@ describe("GET articles", () => {
             author: expect.any(String),
             title: expect.any(String),
             article_id: expect.any(Number),
-            body: expect.any(String),
             topic: "mitch",
             created_at: expect.any(String),
             votes: expect.any(Number),
@@ -216,13 +214,20 @@ describe("GET articles", () => {
         });
       });
   });
-  test("400: invalid query", () => {
+  test("200: topic exists but empty", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No article with this topic");
+      });
+  });
+  test("404: topic does not exist", () => {
     return request(app)
       .get("/api/articles?topic=not_topic")
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
-        console.log(body);
-        expect(body.msg).toBe("topic is not exist");
+        expect(body.msg).toBe("Topic does not exist");
       });
   });
 });
