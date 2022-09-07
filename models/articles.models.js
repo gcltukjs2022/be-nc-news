@@ -72,7 +72,8 @@ exports.readArticles = (topic) => {
 
   queryStr += `
   GROUP BY articles.article_id
-  ORDER BY created_at DESC`;
+  ORDER BY created_at DESC;
+  `;
 
   return db
     .query(queryStr, queryValues)
@@ -80,7 +81,7 @@ exports.readArticles = (topic) => {
       if (rowCount === 0) {
         return Promise.all([
           rows,
-          db.query(`SELECT * FROM topics WHERE slug=$1`, [topic]),
+          db.query(`SELECT * FROM topics WHERE slug=$1;`, [topic]),
         ]);
       } else {
         return Promise.all([rows]);

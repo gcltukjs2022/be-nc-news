@@ -174,7 +174,7 @@ describe("GET articles", () => {
       .expect(200)
       .then(({ body }) => {
         expect(Array.isArray(body.articles)).toBe(true);
-        expect(body.articles.length > 0).toBe(true);
+        expect(body.articles.length).toBe(12);
 
         body.articles.forEach((article) => {
           expect(article).toEqual(
@@ -196,8 +196,6 @@ describe("GET articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        expect(Array.isArray(body.articles)).toBe(true);
-        expect(body.articles.length > 0).toBe(true);
         expect(body.articles).toBeSortedBy("created_at", { descending: true });
       });
   });
@@ -207,7 +205,7 @@ describe("GET articles", () => {
       .expect(200)
       .then(({ body }) => {
         expect(Array.isArray(body.articles)).toBe(true);
-        expect(body.articles.length > 0).toBe(true);
+        expect(body.articles.length).toBe(11);
         expect(body.articles).toBeSortedBy("created_at", { descending: true });
 
         body.articles.forEach((article) => {
