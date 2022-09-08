@@ -3,6 +3,7 @@ const {
   updateArticleById,
   readArticles,
   readCommentsByArticleId,
+  addCommentByArticleId
 } = require("../models/articles.models");
 
 exports.getArticleById = (req, res, next) => {
@@ -40,4 +41,14 @@ exports.getCommentsByArticleId = (req, res, next) => {
       res.status(200).send({ comments });
     })
     .catch(next);
+};
+
+exports.postCommentByArticleId = (req, res, next) => {
+  const { article_id } = req.params;
+  const reqBody = req.body;
+  addCommentByArticleId(article_id, reqBody)
+    .then((comment) => {
+      res.status(201).send({ comment });
+    })
+    .catch(next)
 };

@@ -29,12 +29,12 @@ describe("GET topics", () => {
         });
       });
   });
-  test("404: API does not exist", () => {
+  test("400: Invalid API", () => {
     return request(app)
       .get("/api/not_an_valid_path")
-      .expect(404)
-      .then((response) => {
-        expect(response.res.statusMessage).toBe("Not Found");
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Path");
       });
   });
 });
@@ -73,7 +73,7 @@ describe("GET article by id", () => {
       .get("/api/articles/one")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid article_id");
+        expect(body.msg).toBe("Invalid id");
       });
   });
 });
@@ -151,7 +151,7 @@ describe("PATCH article", () => {
       .send(propToUpdate)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid article_id");
+        expect(body.msg).toBe("Invalid id");
       });
   });
   test("404: article_id does not exist", () => {
@@ -291,7 +291,68 @@ describe("GET comments", () => {
       .get("/api/articles/one/comments")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid article_id");
+        expect(body.msg).toBe("Invalid id");
+      });
+  });
+});
+
+describe("POST comment", () => {
+  test("201: post comment by article_id", () => {
+    const newComment = { username: "lurker", body: "totally" };
+    return request(app)
+      .post("/api/articles/11/comments")
+      .send(newComment)
+      .expect(201)
+      .then(({ body }) => {
+        const datePattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+        expect(body.comment).toMatchObject({
+          comment_id: 19,
+          body: "totally",
+          article_id: 11,
+          author: "lurker",
+          votes: 0,
+          created_at: expect.stringMatching(datePattern),
+        });
+      });
+  });
+  test("400: username does not exist", () => {
+    const newComment = { username: "not_exist_user", body: "totally" };
+    return request(app)
+      .post("/api/articles/11/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("username does not exist");
+      });
+  });
+  test("400: article_id does not exist", () => {
+    const newComment = { username: "not_exist_user", body: "totally" };
+    return request(app)
+      .post("/api/articles/999/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("article_id does not exist");
+      });
+  });
+  test("400: wrong data type", () => {
+    const newComment = { username: "lurker", body: true };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Wrong data type");
+      });
+  });
+  test("400: incomplete comment", () => {
+    const newComment = { username: "lurker" };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incomplete comment");
       });
   });
 });
