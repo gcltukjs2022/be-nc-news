@@ -429,3 +429,38 @@ describe("POST comment", () => {
       });
   });
 });
+
+describe("DELETE comment", () => {
+  test("204: delete comment by comment_id", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  test("404: comment_id does not exist", () => {
+    return request(app)
+      .delete("/api/comments/9999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Comment_id does not exist");
+      });
+  });
+  test("400: invalid comment_id", () => {
+    return request(app)
+      .delete("/api/comments/one")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Invalid id");
+      });
+  });
+  test("400: Invalid Path", () => {
+    return request(app)
+      .delete("/api/comments/")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Invalid Path");
+      });
+  });
+});

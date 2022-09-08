@@ -5,6 +5,7 @@ const {
   getArticles,
   getCommentsByArticleId,
   postCommentByArticleId,
+  deleteCommentByCommentId,
 } = require("./controllers/articles.controllers");
 const { getTopics } = require("./controllers/topics.controllers");
 const { getUsers } = require("./controllers/users.controllers");
@@ -21,6 +22,7 @@ app.get("/api/articles", getArticles);
 app.patch("/api/articles/:article_id", patchArticleById);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postCommentByArticleId);
+app.delete("/api/comments/:comment_id", deleteCommentByCommentId);
 
 app.all("/*", (req, res, next) => {
   res.status(400).send({ msg: "Invalid Path" });
