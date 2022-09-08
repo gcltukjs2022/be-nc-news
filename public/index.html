@@ -1,0 +1,205 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Northcoders News API</title>
+  </head>
+  <body>
+    <header>
+      <h1>Northcoders Solo Project News API</h1>
+    </header>
+
+    <h2>Routes</h2>
+
+    <article>
+      <details>
+        <summary>GET /api/topics</summary>
+        <ul>
+          <li>Description: Serves an array of all topics</li>
+          <li>Queries: []</li>
+          <li>
+            <summary>Example Response:</summary>
+            <pre>{ topics: [{ slug: football, description: Footie! }] }</pre>
+          </li>
+        </ul>
+      </details>
+    </article>
+    <br />
+    <article>
+      <details>
+        <summary>GET /api/users</summary>
+        <ul>
+          <li>Description: Serves an array of all topics</li>
+          <li>Queries: []</li>
+          <li>
+            <summary>Example Response:</summary>
+            <pre>
+            { topics: [ 
+                { 
+                  username: butter_bridge, 
+                  name: jonny,
+                  avatar_url: https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg
+                } 
+              ]
+            }
+            </pre>
+          </li>
+        </ul>
+      </details>
+    </article>
+    <br />
+    <article>
+      <details>
+        <summary>GET /api/articles</summary>
+        <ul>
+          <li>Description: Serves an array of all articles</li>
+          <li>Queries: [author, topic, sort_by, order]</li>
+          <li>
+            <summary>Example Response:</summary>
+            <pre>
+            { articles: [ 
+                { 
+                  title: Seafood substitutions are increasing, 
+                  topic: cooking, 
+                  author: weegembump, 
+                  body: Text from the article.., 
+                  created_at: 2020-09-16T16:26:00.000Z 
+                } 
+              ] 
+            }
+              </pre
+            >
+          </li>
+        </ul>
+      </details>
+    </article>
+    <br />
+    <article>
+      <details>
+        <summary>GET /api/articles/:article_id</summary>
+        <ul>
+          <li>Description: Serves a specific article</li>
+          <li>Queries: []</li>
+          <li>
+            <summary>Example Response:</summary>
+            <pre>
+            { article:
+                { 
+                  article_id: 1, 
+                  title: Living in the shadow of a great man, 
+                  topic: mitch, 
+                  author: butter_bridge, 
+                  body: I find this existence challenging, 
+                  created_at: 020-07-09T20:11:00.000Z, votes: 100 
+                } 
+            }
+            </pre>
+          </li>
+        </ul>
+      </details>
+    </article>
+    <br />
+    <article>
+      <details>
+        <summary>GET /api/articles/:article_id/comments</summary>
+        <ul>
+          <li>description: serves an array of comments of specific article</li>
+          <li>queries: [author, topic, sort_by, order]</li>
+          <li>
+            <summary>Example Response:</summary>
+            <pre>
+            { comments: [ 
+                { 
+                  comment_id: 2, 
+                  body: The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky., 
+                  author: butter_bridge, 
+                  votes: 14, 
+                  created_at: 2020-10-31T03:03:00.000Z
+                }
+                { 
+                  comment_id: 3, 
+                  body: Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.,
+                  author: icellusedkars, 
+                  votes: 100, 
+                  created_at: 2020-03-01T01:13:00.000Z 
+                } 
+              ] 
+            }
+            </pre>
+          </li>
+        </ul>
+      </details>
+    </article>
+    <br />
+    <article>
+      <details>
+        <summary>PATCH /api/articles/:article_id</summary>
+        <ul>
+          <li>Description: update a specific article votes</li>
+          <li>Queries: []</li>
+          <li>
+            Example Request:
+            <pre>{ inc_votes: 100 }</pre>
+          </li>
+          <li>
+            <summary>Example Response:</summary>
+            <pre>
+              { article: 
+                  { 
+                    article_id: 1, 
+                    title: Living in the shadow of a great man, 
+                    topic: mitch, 
+                    author: butter_bridge, 
+                    body: I find this existence challenging, 
+                    created_at: 2020-07-09T20:11:00.000Z, 
+                    votes: 200 
+                } 
+              }
+            </pre>
+          </li>
+        </ul>
+      </details>
+    </article>
+    <br />
+    <article>
+      <details>
+        <summary>POST /api/articles/:article_id/comments</summary>
+        <ul>
+          <li>description: add a new comment to a specific article</li>
+          <li>queries: []</li>
+          <li>
+            exampleRequest:
+            <pre>{ username: lurker, body: totally }</pre>
+          </li>
+          <li>
+            <summary>Example Response:</summary>
+            <pre>
+              { comment: 
+                { 
+                  comment_id: 19, 
+                  body: totally,
+                  rticle_id: 11,
+                  author: lurker, 
+                  votes: 0,
+                  created_at: 2022-09-08T11:49:35.538Z
+                } 
+              }
+            </pre>
+          </li>
+        </ul>
+      </details>
+    </article>
+    <br />
+    <article>
+      <details>
+        <summary>DELETE /api/comments/:comment_id</summary>
+        <ul>
+          <li>Description: Delete a specific comment</li>
+          <li>Queries: []</li>
+          <li>Example Response: {}</li>
+        </ul>
+      </details>
+    </article>
+  </body>
+</html>

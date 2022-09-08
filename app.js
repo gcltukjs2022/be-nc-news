@@ -1,4 +1,5 @@
 const express = require("express");
+const { getAPI } = require("./controllers/api.controllers");
 const {
   getArticleById,
   patchArticleById,
@@ -6,7 +7,6 @@ const {
   getCommentsByArticleId,
   postCommentByArticleId,
   deleteCommentByCommentId,
-  getAPI,
 } = require("./controllers/articles.controllers");
 const { getTopics } = require("./controllers/topics.controllers");
 const { getUsers } = require("./controllers/users.controllers");
@@ -26,6 +26,10 @@ app.patch("/api/articles/:article_id", patchArticleById);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postCommentByArticleId);
 app.delete("/api/comments/:comment_id", deleteCommentByCommentId);
+
+app.get("/", (req, res) => {
+  res.sendFile(`${__dirname}/public/index.html`);
+});
 
 app.all("/*", (req, res, next) => {
   res.status(400).send({ msg: "Invalid Path" });

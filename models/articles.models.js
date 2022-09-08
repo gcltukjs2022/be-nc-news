@@ -1,5 +1,4 @@
 const db = require("../db/connection");
-const fs = require("fs/promises");
 
 exports.readArticleById = (article_id) => {
   return db
@@ -208,16 +207,5 @@ exports.removeCommentByCommentId = (comment_id) => {
           msg: "Comment_id does not exist",
         });
       }
-    });
-};
-
-exports.readAPI = () => {
-  return fs
-    .readFile("./endpoints.json")
-    .then((file) => {
-      return JSON.parse(file);
-    })
-    .then((result) => {
-      return result;
     });
 };
