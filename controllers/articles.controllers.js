@@ -5,7 +5,6 @@ const {
   readCommentsByArticleId,
   addCommentByArticleId,
   removeCommentByCommentId,
-  readAPI,
 } = require("../models/articles.models");
 
 exports.getArticleById = (req, res, next) => {
@@ -60,14 +59,6 @@ exports.deleteCommentByCommentId = (req, res, next) => {
   removeCommentByCommentId(comment_id)
     .then(() => {
       res.status(204).send();
-    })
-    .catch(next);
-};
-
-exports.getAPI = (req, res, next) => {
-  readAPI()
-    .then((api) => {
-      res.status(200).send(api);
     })
     .catch(next);
 };

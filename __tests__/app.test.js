@@ -503,7 +503,7 @@ describe("GET api", () => {
               topic: "cooking",
               author: "weegembump",
               body: "Text from the article..",
-              created_at: 1527695953341,
+              created_at: "2020-09-16T16:26:00.000Z",
             },
           ],
         },
@@ -577,7 +577,7 @@ describe("GET api", () => {
         },
       },
       "DELETE /api/comments/:comment_id": {
-        description: "delete a comment",
+        description: "delete a specific comment",
         queries: [],
         exampleResponse: {},
       },
