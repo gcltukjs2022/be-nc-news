@@ -54,7 +54,21 @@ exports.updateArticleById = (article_id, inc_votes) => {
   }
 };
 
-exports.readArticles = (topic) => {
+exports.readArticles = (topic, sort_by = "created_at", order = "DESC") => {
+  const validColumns = [
+    "article_id",
+    "title",
+    "topic",
+    "author",
+    "body",
+    "created_at",
+    "votes",
+  ];
+
+  if (validColumns.includes(sort_by) === false) {
+    return Promise.reject({ status: 400, msg: "Invalid column" });
+  }
+
   let queryStr = `
   SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, CAST(COUNT(comments.article_id) AS INT) AS comment_count FROM articles
   LEFT JOIN comments ON comments.article_id = articles.article_id
@@ -72,8 +86,19 @@ exports.readArticles = (topic) => {
 
   queryStr += `
   GROUP BY articles.article_id
-  ORDER BY created_at DESC;
   `;
+
+  if (sort_by) {
+    queryStr += `ORDER BY ${sort_by} `;
+  } else {
+    queryStr += `ORDER BY created_at `;
+  }
+
+  if (order) {
+    queryStr += `${order};`;
+  } else {
+    queryStr += `DESC;`;
+  }
 
   return db
     .query(queryStr, queryValues)
