@@ -221,6 +221,47 @@ describe("GET articles", () => {
         });
       });
   });
+  test("200: sort articles by a valid column and default descending order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(body.articles.length).toBe(12);
+        expect(body.articles).toBeSortedBy("author", { descending: true });
+      });
+  });
+  test("200: sort articles by a valid column and custom ascending order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(body.articles.length).toBe(12);
+        expect(body.articles).toBeSortedBy("author");
+      });
+  });
+  test("200: get articles filtered by a valid query, sort articles by a valid column and custom ascending order", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&sort_by=author&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(body.articles.length).toBe(11);
+        expect(body.articles).toBeSortedBy("author");
+        body.articles.forEach((article) => {
+          expect(article).toEqual({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: "mitch",
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
   test("200: topic exists but empty", () => {
     return request(app)
       .get("/api/articles?topic=paper")
@@ -240,6 +281,38 @@ describe("GET articles", () => {
   test("400: invalid topic", () => {
     return request(app)
       .get("/api/articles?topic=")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid topic");
+      });
+  });
+  test("400: Invalid column", () => {
+    return request(app)
+      .get("/api/articles?sort_by=not_valid_column")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid column");
+      });
+  });
+  test("400: invalid order query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author&order=invalid_order")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid order query");
+      });
+  });
+  test("404: sort_by and order valid but topic does not exist", () => {
+    return request(app)
+      .get("/api/articles?topic=not_exist_topic&sort_by=author&order=asc")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Topic does not exist");
+      });
+  });
+  test("400: sort_by and order valid but with invalid topic", () => {
+    return request(app)
+      .get("/api/articles?topic=&sort_by=author&order=asc")
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid topic");
