@@ -67,7 +67,6 @@ exports.deleteCommentByCommentId = (req, res, next) => {
 exports.getAPI = (req, res, next) => {
   readAPI()
     .then((api) => {
-      console.log(api);
       res.status(200).send(api);
     })
     .catch(next);
