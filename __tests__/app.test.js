@@ -464,3 +464,129 @@ describe("DELETE comment", () => {
       });
   });
 });
+
+describe("GET api", () => {
+  test("200: get all api description", () => {
+    const api = {
+      "GET /api": {
+        description:
+          "serves up a json representation of all the available endpoints of the api",
+      },
+      "GET /api/topics": {
+        description: "serves an array of all topics",
+        queries: [],
+        exampleResponse: {
+          topics: [{ slug: "football", description: "Footie!" }],
+        },
+      },
+      "GET /api/users": {
+        description: "serves an array of all topics",
+        queries: [],
+        exampleResponse: {
+          topics: [
+            {
+              username: "butter_bridge",
+              name: "jonny",
+              avatar_url:
+                "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+            },
+          ],
+        },
+      },
+      "GET /api/articles": {
+        description: "serves an array of all articles",
+        queries: ["author", "topic", "sort_by", "order"],
+        exampleResponse: {
+          articles: [
+            {
+              title: "Seafood substitutions are increasing",
+              topic: "cooking",
+              author: "weegembump",
+              body: "Text from the article..",
+              created_at: 1527695953341,
+            },
+          ],
+        },
+      },
+      "GET /api/articles/:article_id": {
+        description: "serves a specific article",
+        queries: [],
+        exampleResponse: {
+          article: {
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 100,
+          },
+        },
+      },
+      "GET /api/articles/:article_id/comments": {
+        description: "serves an array of comments of specific article",
+        queries: ["author", "topic", "sort_by", "order"],
+        exampleResponse: {
+          comments: [
+            {
+              comment_id: 2,
+              body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+              author: "butter_bridge",
+              votes: 14,
+              created_at: "2020-10-31T03:03:00.000Z",
+            },
+            {
+              comment_id: 3,
+              body: "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.",
+              author: "icellusedkars",
+              votes: 100,
+              created_at: "2020-03-01T01:13:00.000Z",
+            },
+          ],
+        },
+      },
+      "PATCH /api/articles/:article_id": {
+        description: "update a specific article votes",
+        queries: [],
+        exampleRequest: { inc_votes: 100 },
+        exampleResponse: {
+          article: {
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 200,
+          },
+        },
+      },
+      "POST /api/articles/:article_id/comments": {
+        description: "add a new comment to a specific article",
+        queries: [],
+        exampleRequest: { username: "lurker", body: "totally" },
+        exampleResponse: {
+          comment: {
+            comment_id: 19,
+            body: "totally",
+            article_id: 11,
+            author: "lurker",
+            votes: 0,
+            created_at: "2022-09-08T11:49:35.538Z",
+          },
+        },
+      },
+      "DELETE /api/comments/:comment_id": {
+        description: "delete a comment",
+        queries: [],
+        exampleResponse: {},
+      },
+    };
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ _body }) => {
+        expect(_body).toEqual(api);
+      });
+  });
+});
