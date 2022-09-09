@@ -35,7 +35,8 @@
           <li>
             <summary>Example Response:</summary>
             <pre>
-            { topics: [ 
+            { 
+              topics: [ 
                 { 
                   username: butter_bridge, 
                   name: jonny,
@@ -58,7 +59,8 @@
           <li>
             <summary>Example Response:</summary>
             <pre>
-            { articles: [ 
+            { 
+              articles: [ 
                 { 
                   title: Seafood substitutions are increasing, 
                   topic: cooking, 
@@ -104,12 +106,13 @@
       <details>
         <summary>GET /api/articles/:article_id/comments</summary>
         <ul>
-          <li>description: serves an array of comments of specific article</li>
-          <li>queries: [author, topic, sort_by, order]</li>
+          <li>Description: serves an array of comments of specific article</li>
+          <li>Queries: [author, topic, sort_by, order]</li>
           <li>
             <summary>Example Response:</summary>
             <pre>
-            { comments: [ 
+            { 
+              comments: [ 
                 { 
                   comment_id: 2, 
                   body: The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky., 
@@ -145,7 +148,8 @@
           <li>
             <summary>Example Response:</summary>
             <pre>
-              { article: 
+              { 
+                article: 
                   { 
                     article_id: 1, 
                     title: Living in the shadow of a great man, 
@@ -166,23 +170,24 @@
       <details>
         <summary>POST /api/articles/:article_id/comments</summary>
         <ul>
-          <li>description: add a new comment to a specific article</li>
-          <li>queries: []</li>
+          <li>Description: Add a new comment to a specific article</li>
+          <li>Queries: []</li>
           <li>
-            exampleRequest:
+            Example Request:
             <pre>{ username: lurker, body: totally }</pre>
           </li>
           <li>
             <summary>Example Response:</summary>
             <pre>
-              { comment: 
-                { 
-                  comment_id: 19, 
-                  body: totally,
-                  rticle_id: 11,
-                  author: lurker, 
-                  votes: 0,
-                  created_at: 2022-09-08T11:49:35.538Z
+              { 
+                comment: 
+                  { 
+                    comment_id: 19, 
+                    body: totally,
+                    rticle_id: 11,
+                    author: lurker, 
+                    votes: 0,
+                    created_at: 2022-09-08T11:49:35.538Z
                 } 
               }
             </pre>
