@@ -7,7 +7,6 @@ exports.readAPI = () => {
       return JSON.parse(file);
     })
     .then((result) => {
-      console.log(result);
       return result;
     });
 };
