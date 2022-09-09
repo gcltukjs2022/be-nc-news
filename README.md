@@ -20,9 +20,6 @@ npm install
 npm install -D jest
 npm install -D jest-sorted
 npm install -D supertest
-npm install express
-npm install dotenv --save
-npm install pg
 ```
 
 ### 3. Seed local database
