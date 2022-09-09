@@ -51,7 +51,19 @@ You can add these two scripts to package.json
   }
 ```
 
-### 4. Run tests
+### 4. Create two .env files
+
+You will need to create a connection to the relevant database in a ./db/index.js file, and use dotenv files (.env.test & .env.development) to determine which database to connect to, based on whether you are running your jest tests, or running the server manually.
+
+```
+.env.test:
+PGDATABASE=PGDATABASE=nc_news_test
+
+.env.development:
+PGDATABASE=PGDATABASE=nc_news
+```
+
+### 5. Run tests
 
 ```
 npm test
