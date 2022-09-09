@@ -1,35 +1,12 @@
 const express = require("express");
-const { getAPI } = require("./controllers/api.controllers");
-const {
-  getArticleById,
-  patchArticleById,
-  getArticles,
-  getCommentsByArticleId,
-  postCommentByArticleId,
-  deleteCommentByCommentId,
-} = require("./controllers/articles.controllers");
-const { getTopics } = require("./controllers/topics.controllers");
-const { getUsers } = require("./controllers/users.controllers");
+const apiRouter = require("./routes/api-router");
 
 const app = express();
 app.use(express.json());
 
-app.get("/api", getAPI);
+app.use("/api", apiRouter);
 
-app.get("/api/topics", getTopics);
-
-app.get("/api/users", getUsers);
-
-app.get("/api/articles/:article_id", getArticleById);
-app.get("/api/articles", getArticles);
-app.patch("/api/articles/:article_id", patchArticleById);
-app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
-app.post("/api/articles/:article_id/comments", postCommentByArticleId);
-app.delete("/api/comments/:comment_id", deleteCommentByCommentId);
-
-app.get("/", (req, res) => {
-  res.sendFile(`${__dirname}/public/index.html`);
-});
+app.use("/", express.static("public"));
 
 app.all("/*", (req, res, next) => {
   res.status(400).send({ msg: "Invalid Path" });
