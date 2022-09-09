@@ -16,25 +16,12 @@ I build this API for the purpose of accessing application data programmatically.
 ### 2. You will need to install these dependencies:
 
 ```
-jest:
-npm install --save-dev jest
-
-jest-sorted:
-npm install --save-dev jest-sorted
-
-pg-format:
-npm install pg-format
-
-supertest:
-npm install supertest --save-dev
-
-express:
+npm install
+npm install -D jest
+npm install -D jest-sorted
+npm install -D supertest
 npm install express
-
-dotenv:
 npm install dotenv --save
-
-pg:
 npm install pg
 ```
 
@@ -57,10 +44,10 @@ You will need to create a connection to the relevant database in a ./db/index.js
 
 ```
 .env.test:
-PGDATABASE=PGDATABASE=nc_news_test
+PGDATABASE=nc_news_test
 
 .env.development:
-PGDATABASE=PGDATABASE=nc_news
+PGDATABASE=nc_news
 ```
 
 ### 5. Run tests
