@@ -590,3 +590,108 @@ describe("GET api", () => {
       });
   });
 });
+
+describe("GET user by username", () => {
+  test("200: get user by username", () => {
+    const user = {
+      username: "butter_bridge",
+      name: "jonny",
+      avatar_url:
+        "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+    };
+    return request(app)
+      .get("/api/users/butter_bridge")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.user).toMatchObject({
+          username: "butter_bridge",
+          name: "jonny",
+          avatar_url:
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+        });
+      });
+  });
+  test("400: invalid username", () => {
+    return request(app)
+      .get("/api/users/9999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("User does not exist");
+      });
+  });
+});
+
+describe("PATCH comment by comment_id", () => {
+  test("200: patch comment by comment_id", () => {
+    const propToUpdate = { inc_votes: 10 };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(propToUpdate)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comment).toMatchObject({
+          body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+          votes: 24,
+          author: "butter_bridge",
+          article_id: 1,
+          created_at: "2020-10-31T03:03:00.000Z",
+        });
+      });
+  });
+  test("200: patch comment by comment_id with negative number", () => {
+    const propToUpdate = { inc_votes: -10 };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(propToUpdate)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comment).toMatchObject({
+          body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+          votes: 4,
+          author: "butter_bridge",
+          article_id: 1,
+          created_at: "2020-10-31T03:03:00.000Z",
+        });
+      });
+  });
+  test("400: inc_votes key is not found", () => {
+    const propToUpdate = { inc: 10 };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(propToUpdate)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("inc_votes key is not found");
+      });
+  });
+  test("400: wrong data type", () => {
+    const propToUpdate = { inc_votes: "ten" };
+    return request(app)
+      .patch("/api/comments/1")
+      .send(propToUpdate)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Wrong data type");
+      });
+  });
+  test("400: invalid comment_id", () => {
+    const propToUpdate = { inc_votes: 10 };
+    return request(app)
+      .patch("/api/comments/one")
+      .send(propToUpdate)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid id");
+      });
+  });
+  test("404: comment_id does not exist", () => {
+    const propToUpdate = { inc_votes: 10 };
+    return request(app)
+      .patch("/api/comments/9999")
+      .send(propToUpdate)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("comment_id does not exist");
+      });
+  });
+});
