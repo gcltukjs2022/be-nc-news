@@ -179,35 +179,86 @@ exports.readArticles = (
     });
 };
 
-exports.readCommentsByArticleId = (article_id) => {
+exports.readCommentsByArticleId = (article_id, limit = 10, p) => {
+  if (isNaN(limit)) {
+    return Promise.reject({ status: 400, msg: "limit query must be a number" });
+  } else if (limit.length === 0) {
+    return Promise.reject({ status: 400, msg: "Invalid limit query" });
+  } else if (p !== undefined && isNaN(p)) {
+    return Promise.reject({ status: 400, msg: "q query must be a number" });
+  } else if (p !== undefined && p.length === 0) {
+    return Promise.reject({ status: 400, msg: "Invalid p query" });
+  }
+
+  let total_count;
+  let queryStr = `SELECT comment_id, body, author, votes, created_at FROM comments WHERE article_id=$1`;
   return db
-    .query(
-      `SELECT comment_id, body, author, votes, created_at FROM comments WHERE article_id=$1;`,
-      [article_id]
-    )
-    .then(({ rows, rowCount }) => {
-      if (rowCount === 0) {
-        return Promise.all([
-          rows,
-          db.query(`SELECT * FROM articles WHERE article_id=$1;`, [article_id]),
-        ]);
-      }
-      return Promise.all([rows]);
+    .query(`SELECT * FROM comments WHERE article_id=$1`, [article_id])
+    .then(({ rowCount }) => {
+      total_count = rowCount;
     })
-    .then(([rows, articlesResult]) => {
-      if (articlesResult !== undefined) {
-        if (articlesResult.rowCount > 0) {
-          return Promise.reject({
-            status: 200,
-            msg: "No comments with this article_id",
+    .then(() => {
+      if (p === undefined) {
+        return db
+          .query(`${queryStr} LIMIT ${limit};`, [article_id])
+          .then(({ rows, rowCount }) => {
+            if (rowCount === 0) {
+              return Promise.all([
+                rows,
+                db.query(`SELECT * FROM articles WHERE article_id=$1;`, [
+                  article_id,
+                ]),
+              ]);
+            }
+            return Promise.all([rows]);
+          })
+          .then(([rows, articlesResult]) => {
+            if (articlesResult !== undefined) {
+              if (articlesResult.rowCount > 0) {
+                return Promise.reject({
+                  status: 200,
+                  msg: "No comments with this article_id",
+                });
+              }
+              return Promise.reject({
+                status: 404,
+                msg: "article_id does not exist",
+              });
+            }
+            return { rows, total_count };
           });
-        }
-        return Promise.reject({
-          status: 404,
-          msg: "article_id does not exist",
-        });
+      } else {
+        return db
+          .query(`${queryStr} LIMIT ${limit} OFFSET ${p - 1} * ${limit}`, [
+            article_id,
+          ])
+          .then(({ rows, rowCount }) => {
+            if (rowCount === 0) {
+              return Promise.all([
+                rows,
+                db.query(`SELECT * FROM articles WHERE article_id=$1;`, [
+                  article_id,
+                ]),
+              ]);
+            }
+            return Promise.all([rows]);
+          })
+          .then(([rows, articlesResult]) => {
+            if (articlesResult !== undefined) {
+              if (articlesResult.rowCount > 0) {
+                return Promise.reject({
+                  status: 200,
+                  msg: "No comments with this article_id",
+                });
+              }
+              return Promise.reject({
+                status: 404,
+                msg: "article_id does not exist",
+              });
+            }
+            return { rows, total_count };
+          });
       }
-      return rows;
     });
 };
 

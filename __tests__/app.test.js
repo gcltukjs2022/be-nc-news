@@ -350,7 +350,7 @@ describe("GET articles", () => {
         expect(body.msg).toBe("q query must be a number");
       });
   });
-  test("400: invalid limit query", () => {
+  test("400: invalid p query", () => {
     return request(app)
       .get("/api/articles?p=")
       .expect(400)
@@ -439,7 +439,8 @@ describe("GET comments", () => {
       .expect(200)
       .then(({ body }) => {
         expect(Array.isArray(body.comments)).toBe(true);
-        expect(body.comments.length).toBe(11);
+        expect(body.comments.length).toBe(10);
+        expect(body.total_count).toBe(11);
 
         body.comments.forEach((comment) => {
           expect(Object.keys(comment).length).toBe(5);
@@ -453,6 +454,82 @@ describe("GET comments", () => {
             })
           );
         });
+      });
+  });
+  test("200: get comments by article_id with limit query", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=11")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.comments)).toBe(true);
+        expect(body.comments.length).toBe(11);
+        expect(body.total_count).toBe(11);
+        body.comments.forEach((comment) => {
+          expect(Object.keys(comment).length).toBe(5);
+          expect(comment).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              author: expect.any(String),
+              body: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("200: get comments by article_id with limit and p query", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=2&p=2")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.comments)).toBe(true);
+        expect(body.comments.length).toBe(2);
+        expect(body.total_count).toBe(11);
+        body.comments.forEach((comment) => {
+          expect(Object.keys(comment).length).toBe(5);
+          expect(comment).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              author: expect.any(String),
+              body: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("400: invalid limit query which is not a number", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=two")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("limit query must be a number");
+      });
+  });
+  test("400: invalid limit query", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid limit query");
+      });
+  });
+  test("400: invalid p query which is not a number", () => {
+    return request(app)
+      .get("/api/articles/1/comments?p=two")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("q query must be a number");
+      });
+  });
+  test("400: invalid p query", () => {
+    return request(app)
+      .get("/api/articles/1/comments?p=")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid p query");
       });
   });
   test("200: no comments with the provided article_id", () => {
