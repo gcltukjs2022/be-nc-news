@@ -168,13 +168,14 @@ describe("PATCH article", () => {
 });
 
 describe("GET articles", () => {
-  test.only("200: get all articles including property comment_count", () => {
+  test("200: get all articles including property comment_count", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
         expect(Array.isArray(body.articles)).toBe(true);
         expect(body.articles.length).toBe(10);
+        expect(body.total_count).toBe(12);
 
         body.articles.forEach((article) => {
           expect(article).toEqual(
@@ -199,6 +200,28 @@ describe("GET articles", () => {
         expect(body.articles).toBeSortedBy("created_at", { descending: true });
       });
   });
+  test("200: get all articles including property comment_count and limit query", () => {
+    return request(app)
+      .get("/api/articles?limit=8")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(body.articles.length).toBe(8);
+        expect(body.total_count).toBe(12);
+        expect(body.articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("200: get all articles including property comment_count, limit query and p query ", () => {
+    return request(app)
+      .get("/api/articles?limit=4&p=3")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(body.articles.length).toBe(4);
+        expect(body.total_count).toBe(12);
+        expect(body.articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
   test("200: get articles filtered by a valid custom query", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
@@ -206,6 +229,7 @@ describe("GET articles", () => {
       .then(({ body }) => {
         expect(Array.isArray(body.articles)).toBe(true);
         expect(body.articles.length).toBe(10);
+        expect(body.total_count).toBe(11);
         expect(body.articles).toBeSortedBy("created_at", { descending: true });
 
         body.articles.forEach((article) => {
@@ -228,6 +252,7 @@ describe("GET articles", () => {
       .then(({ body }) => {
         expect(Array.isArray(body.articles)).toBe(true);
         expect(body.articles.length).toBe(10);
+        expect(body.total_count).toBe(12);
         expect(body.articles).toBeSortedBy("author", { descending: true });
       });
   });
@@ -238,6 +263,7 @@ describe("GET articles", () => {
       .then(({ body }) => {
         expect(Array.isArray(body.articles)).toBe(true);
         expect(body.articles.length).toBe(10);
+        expect(body.total_count).toBe(12);
         expect(body.articles).toBeSortedBy("author");
       });
   });
@@ -248,6 +274,7 @@ describe("GET articles", () => {
       .then(({ body }) => {
         expect(Array.isArray(body.articles)).toBe(true);
         expect(body.articles.length).toBe(10);
+        expect(body.total_count).toBe(11);
         expect(body.articles).toBeSortedBy("author");
         body.articles.forEach((article) => {
           expect(article).toEqual({
@@ -269,6 +296,7 @@ describe("GET articles", () => {
       .then(({ body }) => {
         expect(Array.isArray(body.articles)).toBe(true);
         expect(body.articles.length).toBe(8);
+        expect(body.total_count).toBe(11);
         expect(body.articles).toBeSortedBy("author");
         body.articles.forEach((article) => {
           expect(article).toEqual({
@@ -290,6 +318,44 @@ describe("GET articles", () => {
       .then(({ body }) => {
         expect(Array.isArray(body.articles)).toBe(true);
         expect(body.articles.length).toBe(12);
+      });
+  });
+  test("200: get articles filtered by a valid query, sort articles by a valid column, ascending order, a valid limit query of 4, and p query of 3", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&sort_by=author&order=asc&limit=4&p=3")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body.articles)).toBe(true);
+        expect(body.articles.length).toBe(3);
+        expect(body.total_count).toBe(11);
+        expect(body.articles).toBeSortedBy("author");
+        body.articles.forEach((article) => {
+          expect(article).toEqual({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: expect.any(Number),
+            topic: "mitch",
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("400: invalid p query which is not a number", () => {
+    return request(app)
+      .get("/api/articles?p=two")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("q query must be a number");
+      });
+  });
+  test("400: invalid limit query", () => {
+    return request(app)
+      .get("/api/articles?p=")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid p query");
       });
   });
   test("400: invalid limit query which is not a number", () => {

@@ -65,21 +65,33 @@ exports.readArticles = (
     return Promise.reject({ status: 400, msg: "limit query must be a number" });
   } else if (limit.length === 0) {
     return Promise.reject({ status: 400, msg: "Invalid limit query" });
+  } else if (p !== undefined && isNaN(p)) {
+    return Promise.reject({ status: 400, msg: "q query must be a number" });
+  } else if (p !== undefined && p.length === 0) {
+    return Promise.reject({ status: 400, msg: "Invalid p query" });
   }
 
   if (topic === undefined && sort_by === "created_at") {
-    return db
-      .query(
-        `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, CAST(COUNT(comments.article_id) AS INT) AS comment_count 
-      FROM articles 
-      LEFT JOIN comments ON comments.article_id = articles.article_id 
-      GROUP BY articles.article_id 
-      ORDER BY created_at DESC
-      LIMIT ${limit};`
-      )
-      .then(({ rows }) => {
-        return rows;
-      });
+    let queryStr = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, CAST(COUNT(comments.article_id) AS INT) AS comment_count 
+    FROM articles 
+    LEFT JOIN comments ON comments.article_id = articles.article_id 
+    GROUP BY articles.article_id 
+    ORDER BY ${sort_by} ${order}`;
+
+    return db.query(queryStr).then(({ rowCount }) => {
+      const total_count = rowCount;
+      if (p !== undefined) {
+        return db
+          .query(`${queryStr} OFFSET ${p - 1} * ${limit};`)
+          .then(({ rows }) => {
+            return { rows, total_count };
+          });
+      } else {
+        return db.query(`${queryStr} LIMIT ${limit};`).then(({ rows }) => {
+          return { rows, total_count };
+        });
+      }
+    });
   }
 
   const validColumns = [
@@ -125,38 +137,45 @@ exports.readArticles = (
     queryStr += `ORDER BY created_at `;
   }
 
-  order === "asc" ? (queryStr += "ASC") : (queryStr += `${order}`);
-
-  // if (limit !== 10) {
-  //   queryStr += ` LIMIT ${limit};`;
-  // } else {
-  //   queryStr += ` LIMIT 10;`;
-  // }
-
-  queryStr += ` LIMIT ${limit}`;
-
+  let total_count;
   return db
     .query(queryStr, queryValues)
-    .then(({ rows, rowCount }) => {
-      if (rowCount === 0) {
-        return Promise.all([
-          rows,
-          db.query(`SELECT * FROM topics WHERE slug=$1;`, [topic]),
-        ]);
-      }
-      return Promise.all([rows]);
+    .then(({ rowCount }) => {
+      total_count = rowCount;
     })
-    .then(([rows, topicsResult]) => {
-      if (topicsResult !== undefined) {
-        if (topicsResult.rowCount > 0) {
-          return Promise.reject({
-            status: 200,
-            msg: "No article with this topic",
-          });
-        }
-        return Promise.reject({ status: 404, msg: "Topic does not exist" });
+    .then(() => {
+      order === "asc" ? (queryStr += "ASC") : (queryStr += `${order}`);
+
+      if (p === undefined) {
+        queryStr += ` LIMIT ${limit}`;
+      } else {
+        queryStr += ` OFFSET ${p - 1} * ${limit}`;
       }
-      return rows;
+
+      return db
+        .query(queryStr, queryValues)
+        .then(({ rows, rowCount }) => {
+          if (rowCount === 0) {
+            return Promise.all([
+              rows,
+              rowCount,
+              db.query(`SELECT * FROM topics WHERE slug=$1;`, [topic]),
+            ]);
+          }
+          return Promise.all([rows, rowCount]);
+        })
+        .then(([rows, rowCount, topicsResult]) => {
+          if (topicsResult !== undefined) {
+            if (topicsResult.rowCount > 0) {
+              return Promise.reject({
+                status: 200,
+                msg: "No article with this topic",
+              });
+            }
+            return Promise.reject({ status: 404, msg: "Topic does not exist" });
+          }
+          return { rows, total_count };
+        });
     });
 };
 
