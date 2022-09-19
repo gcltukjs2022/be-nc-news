@@ -696,7 +696,7 @@ describe("PATCH comment", () => {
   });
 });
 
-describe.only("POST articles", () => {
+describe("POST articles", () => {
   test("201: post articles", () => {
     const newArticle = {
       author: "lurker",
@@ -707,9 +707,80 @@ describe.only("POST articles", () => {
     return request(app)
       .post("/api/articles")
       .send(newArticle)
-      .expect(200)
+      .expect(201)
       .then(({ body }) => {
-        expect(body.article).toMatchObject({});
+        expect(Object.keys(body.article).length).toBe(8);
+
+        const datePattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+        expect(body.article).toMatchObject({
+          article_id: 13,
+          title: "How to become a web developer",
+          topic: "mitch",
+          author: "lurker",
+          body: "How to become a web developer? Go to bootcamp!",
+          created_at: expect.stringMatching(datePattern),
+          votes: 0,
+          comment_count: 0,
+        });
+      });
+  });
+  test("400: username does not exist", () => {
+    const newArticle = {
+      author: "not_exist_user",
+      title: "How to become a web developer",
+      body: "How to become a web developer? Go to bootcamp!",
+      topic: "mitch",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("username does not exist");
+      });
+  });
+  test("400: topic does not exist", () => {
+    const newArticle = {
+      author: "lurker",
+      title: "How to become a web developer",
+      body: "How to become a web developer? Go to bootcamp!",
+      topic: "not_exist_topic",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("topic does not exist");
+      });
+  });
+  test("400: wrong data type", () => {
+    const newArticle = {
+      author: "lurker",
+      title: "How to become a web developer",
+      body: "How to become a web developer? Go to bootcamp!",
+      topic: 1234,
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("wrong data type");
+      });
+  });
+  test("400: incomplete article", () => {
+    const newArticle = {
+      author: "lurker",
+      title: "How to become a web developer",
+      body: "How to become a web developer? Go to bootcamp!",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("imcomplete article");
       });
   });
 });

@@ -58,7 +58,6 @@ exports.postArticles = (req, res, next) => {
   const reqBody = req.body;
   addArticles(reqBody)
     .then((article) => {
-      console.log(article);
       res.status(201).send({ article });
     })
     .catch(next);

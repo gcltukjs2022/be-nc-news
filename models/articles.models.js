@@ -191,16 +191,25 @@ exports.addCommentByArticleId = (article_id, reqBody) => {
           msg: "article_id does not exist",
         });
       }
+      return Promise.all([
+        db.query("SELECT * FROM users WHERE username=$1", [username]),
+      ]);
     })
-    .then(() => {
+    .then(([{ rowCount }]) => {
+      if (rowCount === 0) {
+        return Promise.reject({
+          status: 400,
+          msg: "username does not exist",
+        });
+      }
       return db.query(
         `
-  INSERT INTO comments
-  (article_id, body, author)
-  VALUES
-  ($1, $2, $3)
-  RETURNING *;
-  `,
+         INSERT INTO comments
+         (article_id, body, author)
+         VALUES
+         ($1, $2, $3)
+         RETURNING *;
+         `,
         [article_id, body, username]
       );
     })
@@ -211,30 +220,57 @@ exports.addCommentByArticleId = (article_id, reqBody) => {
 
 exports.addArticles = (reqBody) => {
   const { author, title, body, topic } = reqBody;
+  if (!author || !title || !body || !topic) {
+    return Promise.reject({ status: 400, msg: "imcomplete article" });
+  }
 
-  // return db.query("SELECT * FROM users").then((result) => {
-  //   return result.rows;
-  // });
-
-  // INSERT INTO articles
-  // (author, title, body, topic)
-  // VALUES
-  // (${author}, ${title}, ${body}, ${topic})
-  // RETURNING *;
+  if (
+    typeof author !== "string" ||
+    typeof title !== "string" ||
+    typeof body !== "string" ||
+    typeof topic !== "string"
+  ) {
+    return Promise.reject({ status: 400, msg: "wrong data type" });
+  }
 
   return db
-    .query(
+    .query(`SELECT * FROM users WHERE username=$1`, [author])
+    .then(({ rowCount }) => {
+      if (rowCount === 0) {
+        return Promise.reject({ status: 400, msg: "username does not exist" });
+      }
+      return db
+        .query(`SELECT * FROM topics WHERE slug=$1`, [topic])
+        .then(({ rowCount }) => {
+          if (rowCount === 0) {
+            return Promise.reject({ status: 400, msg: "topic does not exist" });
+          }
+          return db
+            .query(
+              `
+          INSERT INTO articles
+          (author, title, body, topic)
+          VALUES
+          ((SELECT username FROM users WHERE users.username=$1), $2, $3, (SELECT slug FROM topics WHERE topics.slug=$4))
+          RETURNING *     
+        `,
+              [author, title, body, topic]
+            )
+            .then(() => {
+              return db.query(
+                `
+      SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.body, articles.created_at, articles.votes, CAST(COUNT(comments.article_id) AS INT) AS comment_count
+      FROM articles
+      LEFT JOIN comments ON comments.article_id = articles.article_id
+      GROUP BY articles.article_id
+      ORDER BY created_at DESC
+      LIMIT 1;
       `
-      INSERT INTO articles
-      (author, title, body, topic, votes)
-      VALUES
-      (${author}, ${title}, ${body}, ${topic})
-LEFT JOIN users ON users.username = articles.author
-LEFT JOIN topics ON topics.slug = articles.topic
-  `
-    )
-    .then(({ rows }) => {
-      console.log(rows);
-      return rows[0];
+              );
+            })
+            .then(({ rows }) => {
+              return rows[0];
+            });
+        });
     });
 };

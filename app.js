@@ -20,11 +20,13 @@ app.use((err, req, res, next) => {
   }
 });
 
+// else if (err.code === "23503") {
+//   res.status(400).send({ msg: "username does not exist" });
+// }
+
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
     res.status(400).send({ msg: "Invalid id" });
-  } else if (err.code === "23503") {
-    res.status(400).send({ msg: "username does not exist" });
   } else {
     next(err);
   }
