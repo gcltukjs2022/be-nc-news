@@ -1034,3 +1034,36 @@ describe("POST topic", () => {
       });
   });
 });
+
+describe("DELETE article", () => {
+  test("204: delete article by article_id", () => {
+    return request(app)
+      .delete("/api/articles/1")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.total_count).toBe(11);
+          });
+      });
+  });
+  test("400: invalid article_id", () => {
+    return request(app)
+      .delete("/api/articles/one")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid article_id");
+      });
+  });
+  test("404: article does not exist", () => {
+    return request(app)
+      .delete("/api/articles/9999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article does not exist");
+      });
+  });
+});

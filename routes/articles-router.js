@@ -7,6 +7,7 @@ const {
   getCommentsByArticleId,
   postCommentByArticleId,
   postArticles,
+  deleteArticleByArticleId,
 } = require("../controllers/articles.controllers");
 
 articlesRouter.get("/:article_id", getArticleById);
@@ -15,5 +16,6 @@ articlesRouter.get("/:article_id/comments", getCommentsByArticleId);
 articlesRouter.post("/:article_id/comments", postCommentByArticleId);
 articlesRouter.get("/", getArticles);
 articlesRouter.post("/", postArticles);
+articlesRouter.delete("/:article_id", deleteArticleByArticleId);
 
 module.exports = articlesRouter;
