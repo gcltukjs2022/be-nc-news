@@ -55,6 +55,20 @@ exports.updateArticleById = (article_id, inc_votes) => {
 };
 
 exports.readArticles = (topic, sort_by = "created_at", order = "DESC") => {
+  if (topic === undefined && sort_by === "created_at") {
+    return db
+      .query(
+        `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, CAST(COUNT(comments.article_id) AS INT) AS comment_count 
+      FROM articles 
+      LEFT JOIN comments ON comments.article_id = articles.article_id 
+      GROUP BY articles.article_id 
+      ORDER BY created_at DESC`
+      )
+      .then(({ rows }) => {
+        return rows;
+      });
+  }
+
   const validColumns = [
     "article_id",
     "title",
@@ -69,13 +83,17 @@ exports.readArticles = (topic, sort_by = "created_at", order = "DESC") => {
     return Promise.reject({ status: 400, msg: "Invalid column" });
   }
 
+  if (order !== "asc" && order !== "DESC") {
+    return Promise.reject({ status: 400, msg: "Invalid order query" });
+  }
+
   let queryStr = `
   SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, CAST(COUNT(comments.article_id) AS INT) AS comment_count FROM articles
   LEFT JOIN comments ON comments.article_id = articles.article_id
   `;
   const queryValues = [];
 
-  if (topic !== undefined && topic.length === 0) {
+  if (typeof topic === "string" && topic.length === 0) {
     return Promise.reject({ status: 400, msg: "Invalid topic" });
   }
 
@@ -94,11 +112,7 @@ exports.readArticles = (topic, sort_by = "created_at", order = "DESC") => {
     queryStr += `ORDER BY created_at `;
   }
 
-  if (order) {
-    queryStr += `${order};`;
-  } else {
-    queryStr += `DESC;`;
-  }
+  order === "asc" ? (queryStr += "ASC") : (queryStr += `${order}`);
 
   return db
     .query(queryStr, queryValues)
@@ -191,6 +205,36 @@ exports.addCommentByArticleId = (article_id, reqBody) => {
       );
     })
     .then(({ rows }) => {
+      return rows[0];
+    });
+};
+
+exports.addArticles = (reqBody) => {
+  const { author, title, body, topic } = reqBody;
+
+  // return db.query("SELECT * FROM users").then((result) => {
+  //   return result.rows;
+  // });
+
+  // INSERT INTO articles
+  // (author, title, body, topic)
+  // VALUES
+  // (${author}, ${title}, ${body}, ${topic})
+  // RETURNING *;
+
+  return db
+    .query(
+      `
+      INSERT INTO articles
+      (author, title, body, topic, votes)
+      VALUES
+      (${author}, ${title}, ${body}, ${topic})
+LEFT JOIN users ON users.username = articles.author
+LEFT JOIN topics ON topics.slug = articles.topic
+  `
+    )
+    .then(({ rows }) => {
+      console.log(rows);
       return rows[0];
     });
 };

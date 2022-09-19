@@ -4,6 +4,7 @@ const {
   readArticles,
   readCommentsByArticleId,
   addCommentByArticleId,
+  addArticles,
 } = require("../models/articles.models");
 
 exports.getArticleById = (req, res, next) => {
@@ -49,6 +50,16 @@ exports.postCommentByArticleId = (req, res, next) => {
   addCommentByArticleId(article_id, reqBody)
     .then((comment) => {
       res.status(201).send({ comment });
+    })
+    .catch(next);
+};
+
+exports.postArticles = (req, res, next) => {
+  const reqBody = req.body;
+  addArticles(reqBody)
+    .then((article) => {
+      console.log(article);
+      res.status(201).send({ article });
     })
     .catch(next);
 };

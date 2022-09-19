@@ -27,7 +27,7 @@ exports.updateCommentByCommentId = (comment_id, inc_votes) => {
   UPDATE comments
   SET votes = votes + ${inc_votes}
   WHERE article_id=$1
-  RETURNING *`,
+  RETURNING *;`,
         [comment_id]
       )
       .then((result) => {
@@ -39,7 +39,6 @@ exports.updateCommentByCommentId = (comment_id, inc_votes) => {
         }
         return result.rows[0];
       });
-  } else {
-    return Promise.reject({ status: 400, msg: "Wrong data type" });
   }
+  return Promise.reject({ status: 400, msg: "Wrong data type" });
 };

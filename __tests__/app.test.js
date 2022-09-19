@@ -191,7 +191,7 @@ describe("GET articles", () => {
         });
       });
   });
-  test("200: get all articles by descending order", () => {
+  test("200: get all articles by default descending order", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -621,7 +621,7 @@ describe("GET user by username", () => {
   });
 });
 
-describe("PATCH comment by comment_id", () => {
+describe("PATCH comment", () => {
   test("200: patch comment by comment_id", () => {
     const propToUpdate = { inc_votes: 10 };
     return request(app)
@@ -692,6 +692,24 @@ describe("PATCH comment by comment_id", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("comment_id does not exist");
+      });
+  });
+});
+
+describe.only("POST articles", () => {
+  test("201: post articles", () => {
+    const newArticle = {
+      author: "lurker",
+      title: "How to become a web developer",
+      body: "How to become a web developer? Go to bootcamp!",
+      topic: "mitch",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toMatchObject({});
       });
   });
 });
