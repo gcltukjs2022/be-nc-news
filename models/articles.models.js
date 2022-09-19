@@ -54,7 +54,19 @@ exports.updateArticleById = (article_id, inc_votes) => {
   }
 };
 
-exports.readArticles = (topic, sort_by = "created_at", order = "DESC") => {
+exports.readArticles = (
+  topic,
+  sort_by = "created_at",
+  order = "DESC",
+  limit = 10,
+  p
+) => {
+  if (isNaN(limit)) {
+    return Promise.reject({ status: 400, msg: "limit query must be a number" });
+  } else if (limit.length === 0) {
+    return Promise.reject({ status: 400, msg: "Invalid limit query" });
+  }
+
   if (topic === undefined && sort_by === "created_at") {
     return db
       .query(
@@ -62,7 +74,8 @@ exports.readArticles = (topic, sort_by = "created_at", order = "DESC") => {
       FROM articles 
       LEFT JOIN comments ON comments.article_id = articles.article_id 
       GROUP BY articles.article_id 
-      ORDER BY created_at DESC`
+      ORDER BY created_at DESC
+      LIMIT ${limit};`
       )
       .then(({ rows }) => {
         return rows;
@@ -113,6 +126,14 @@ exports.readArticles = (topic, sort_by = "created_at", order = "DESC") => {
   }
 
   order === "asc" ? (queryStr += "ASC") : (queryStr += `${order}`);
+
+  // if (limit !== 10) {
+  //   queryStr += ` LIMIT ${limit};`;
+  // } else {
+  //   queryStr += ` LIMIT 10;`;
+  // }
+
+  queryStr += ` LIMIT ${limit}`;
 
   return db
     .query(queryStr, queryValues)
