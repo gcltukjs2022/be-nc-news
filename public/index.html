@@ -7,7 +7,7 @@
   </head>
   <body>
     <header>
-      <h1>Northcoders Solo Project News API</h1>
+      <h1>Northcoders News API</h1>
     </header>
 
     <h2>Routes</h2>
@@ -20,7 +20,47 @@
           <li>Queries: []</li>
           <li>
             <summary>Example Response:</summary>
-            <pre>{ topics: [{ slug: football, description: Footie! }] }</pre>
+            <pre>
+{ 
+  topics: 
+    [
+      { slug: football, description: Footie! },
+      { slug: cats, description: meow! },
+      ...
+    ] 
+}
+            </pre>
+          </li>
+        </ul>
+      </details>
+    </article>
+    <br />
+    <article>
+      <details>
+        <summary>POST /api/topics</summary>
+        <ul>
+          <li>Description: Add a new topic</li>
+          <li>Queries: []</li>
+          <li>
+            Example Request:
+            <pre>
+{
+  slug: football,
+  description: Footie!
+}</pre
+            >
+          </li>
+          <li>
+            <summary>Example Response:</summary>
+            <pre>
+{
+  topic: 
+    {
+      slug: football,
+      description: "Footie!
+    }
+}</pre
+            >
           </li>
         </ul>
       </details>
@@ -30,20 +70,48 @@
       <details>
         <summary>GET /api/users</summary>
         <ul>
-          <li>Description: Serves an array of all topics</li>
+          <li>Description: Serves an array of all users</li>
           <li>Queries: []</li>
           <li>
             <summary>Example Response:</summary>
             <pre>
-            { 
-              topics: [ 
-                { 
-                  username: butter_bridge, 
-                  name: jonny,
-                  avatar_url: https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg
-                } 
-              ]
-            }
+{ 
+  users: 
+    [ 
+      { username: butter_bridge, 
+        name: jonny,
+        avatar_url: https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg
+      },
+      { username: 'icellusedkars',
+        name: 'sam',
+        avatar_url: 'https://avatars2.githubusercontent.com/u/24604688?s=460&v=4'
+      },
+      ...  
+    ]
+}
+            </pre>
+          </li>
+        </ul>
+      </details>
+    </article>
+    <br />
+    <article>
+      <details>
+        <summary>GET /api/users/:username</summary>
+        <ul>
+          <li>Description: Serves a specific user</li>
+          <li>Queries: []</li>
+          <li>
+            <summary>Example Response:</summary>
+            <pre>
+{ 
+  user: 
+    { 
+      username: butter_bridge, 
+      name: jonny,
+      avatar_url: https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg
+    }
+}
             </pre>
           </li>
         </ul>
@@ -55,21 +123,32 @@
         <summary>GET /api/articles</summary>
         <ul>
           <li>Description: Serves an array of all articles</li>
-          <li>Queries: [author, topic, sort_by, order]</li>
+          <li>Queries: [topic, sort_by, order, limit, p]</li>
           <li>
             <summary>Example Response:</summary>
             <pre>
-            { 
-              articles: [ 
-                { 
-                  title: Seafood substitutions are increasing, 
-                  topic: cooking, 
-                  author: weegembump, 
-                  body: Text from the article.., 
-                  created_at: 2020-09-16T16:26:00.000Z 
-                } 
-              ] 
-            }
+{ 
+  articles: 
+    [ 
+      { 
+       title: Seafood substitutions are increasing, 
+       topic: cooking, 
+       author: weegembump, 
+       body: Text from the article.., 
+       created_at: 2020-09-16T16:26:00.000Z 
+      },
+      {
+       title: "Am I a cat?",
+       topic: "mitch",
+       author: "icellusedkars",
+       body: "Having run out of ideas for articles, I am staring at the wall blankly, like a cat. Does this make me a cat?",
+       created_at: 1579126860000,
+       votes: 0,
+      },
+      ...
+    ], 
+  total_count: 37
+}
               </pre
             >
           </li>
@@ -86,16 +165,18 @@
           <li>
             <summary>Example Response:</summary>
             <pre>
-            { article:
-                { 
-                  article_id: 1, 
-                  title: Living in the shadow of a great man, 
-                  topic: mitch, 
-                  author: butter_bridge, 
-                  body: I find this existence challenging, 
-                  created_at: 020-07-09T20:11:00.000Z, votes: 100 
-                } 
-            }
+{ 
+  article:
+   { 
+     article_id: 1, 
+     title: Living in the shadow of a great man, 
+     topic: mitch, 
+     author: butter_bridge, 
+     body: I find this existence challenging, 
+     created_at: 020-07-09T20:11:00.000Z,
+     votes: 100 
+    } 
+}
             </pre>
           </li>
         </ul>
@@ -106,29 +187,32 @@
       <details>
         <summary>GET /api/articles/:article_id/comments</summary>
         <ul>
-          <li>Description: serves an array of comments of specific article</li>
-          <li>Queries: [author, topic, sort_by, order]</li>
+          <li>Description: Serves an array of comments of specific article</li>
+          <li>Queries: [limit, p]</li>
           <li>
             <summary>Example Response:</summary>
             <pre>
-            { 
-              comments: [ 
-                { 
-                  comment_id: 2, 
-                  body: The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky., 
-                  author: butter_bridge, 
-                  votes: 14, 
-                  created_at: 2020-10-31T03:03:00.000Z
-                }
-                { 
-                  comment_id: 3, 
-                  body: Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.,
-                  author: icellusedkars, 
-                  votes: 100, 
-                  created_at: 2020-03-01T01:13:00.000Z 
-                } 
-              ] 
-            }
+{ 
+  comments: 
+   [ 
+     { 
+      comment_id: 2, 
+      body: The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky., 
+      author: butter_bridge, 
+      votes: 14, 
+      created_at: 2020-10-31T03:03:00.000Z
+     },
+     { 
+      comment_id: 3, 
+      body: Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.,
+      author: icellusedkars, 
+      votes: 100, 
+      created_at: 2020-03-01T01:13:00.000Z 
+     },
+     ... 
+   ]
+  total_count: 8 
+}
             </pre>
           </li>
         </ul>
@@ -139,7 +223,7 @@
       <details>
         <summary>PATCH /api/articles/:article_id</summary>
         <ul>
-          <li>Description: update a specific article votes</li>
+          <li>Description: Update a specific article votes</li>
           <li>Queries: []</li>
           <li>
             Example Request:
@@ -148,18 +232,58 @@
           <li>
             <summary>Example Response:</summary>
             <pre>
-              { 
-                article: 
-                  { 
-                    article_id: 1, 
-                    title: Living in the shadow of a great man, 
-                    topic: mitch, 
-                    author: butter_bridge, 
-                    body: I find this existence challenging, 
-                    created_at: 2020-07-09T20:11:00.000Z, 
-                    votes: 200 
-                } 
-              }
+{ 
+  article: 
+    { 
+      article_id: 1, 
+      title: Living in the shadow of a great man, 
+      topic: mitch, 
+      author: butter_bridge, 
+      body: I find this existence challenging, 
+      created_at: 2020-07-09T20:11:00.000Z, 
+      votes: 200 
+    } 
+}
+            </pre>
+          </li>
+        </ul>
+      </details>
+    </article>
+    <br />
+    <article>
+      <details>
+        <summary>POST /api/articles/</summary>
+        <ul>
+          <li>Description: Add a new article</li>
+          <li>Queries: []</li>
+          <li>
+            Example Request:
+            <pre>
+{ 
+  author: "lurker",
+  title: "How to become a web developer",
+  body: "How to become a web developer? Go to bootcamp!",
+  topic: "mitch",
+}
+          </pre
+            >
+          </li>
+          <li>
+            <summary>Example Response:</summary>
+            <pre>
+{ 
+  article: 
+   { 
+    article_id: 13,
+    title: "How to become a web developer",
+    topic: "mitch",
+    author: "lurker",
+    body: "How to become a web developer? Go to bootcamp!",
+    created_at: "2022-09-19T18:31:01.613Z",
+    votes: 0,
+    comment_count: 0,
+   } 
+}
             </pre>
           </li>
         </ul>
@@ -174,22 +298,68 @@
           <li>Queries: []</li>
           <li>
             Example Request:
-            <pre>{ username: lurker, body: totally }</pre>
+            <pre>
+{ 
+  username: lurker, 
+  body: totally 
+}</pre
+            >
           </li>
           <li>
             <summary>Example Response:</summary>
             <pre>
-              { 
-                comment: 
-                  { 
-                    comment_id: 19, 
-                    body: totally,
-                    rticle_id: 11,
-                    author: lurker, 
-                    votes: 0,
-                    created_at: 2022-09-08T11:49:35.538Z
-                } 
-              }
+{ 
+  comment: 
+  { 
+    comment_id: 19, 
+    body: totally,
+    article_id: 11,
+    author: lurker, 
+    votes: 0,
+    created_at: 2022-09-08T11:49:35.538Z
+  } 
+}
+            </pre>
+          </li>
+        </ul>
+      </details>
+    </article>
+    <br />
+    <article>
+      <details>
+        <summary>DELETE /api/articles/:article_id</summary>
+        <ul>
+          <li>Description: Delete a specific article</li>
+          <li>Queries: []</li>
+          <li>Example Response: {}</li>
+        </ul>
+      </details>
+    </article>
+    <br />
+    <article>
+      <details>
+        <summary>PATCH /api/comments/:comment_id</summary>
+        <ul>
+          <li>Description: Update a specific comment votes</li>
+          <li>Queries: []</li>
+          <li>
+            Example Request:
+            <pre>{ inc_votes: 100 }</pre>
+          </li>
+          <li>
+            <summary>Example Response:</summary>
+            <pre>
+{
+  comment: 
+    {
+      comment_id: 31,
+      body: Sit sequi odio suscipit. Iure quisquam qui alias distinctio eos officia enim aut sit. Corrupti ut praesentium ut iste earum itaque qui. Dolores in ab rerum consequuntur. Id ab aliquid autem dolore.,
+      article_id: 1,
+      author: weegembump,
+      votes: 111,
+      created_at: 2020-09-26T16:16:00.000Z
+    }
+}
             </pre>
           </li>
         </ul>
@@ -206,5 +376,7 @@
         </ul>
       </details>
     </article>
+    <br />
+    <br />
   </body>
 </html>
