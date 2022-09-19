@@ -946,9 +946,9 @@ describe("POST articles", () => {
   test("400: wrong data type", () => {
     const newArticle = {
       author: "lurker",
-      title: "How to become a web developer",
+      title: 1234,
       body: "How to become a web developer? Go to bootcamp!",
-      topic: 1234,
+      topic: "mitch",
     };
     return request(app)
       .post("/api/articles")
@@ -970,6 +970,67 @@ describe("POST articles", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("imcomplete article");
+      });
+  });
+});
+
+describe("POST topic", () => {
+  test("201: post topic", () => {
+    const newTopic = {
+      slug: "woof",
+      description: "dog",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(201)
+      .then(({ body }) => {
+        expect(Object.keys(body.topic).length).toBe(2);
+        expect(body.topic).toMatchObject({
+          slug: "woof",
+          description: "dog",
+        });
+      });
+  });
+  test("400: incomplete topic without primary key slug", () => {
+    const newTopic = {
+      description: "dog",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Incomplete topic");
+      });
+  });
+  test("201: post topic with primary key but no description", () => {
+    const newTopic = {
+      slug: "woof",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(201)
+      .then(({ body }) => {
+        expect(Object.keys(body.topic).length).toBe(2);
+        expect(body.topic).toMatchObject({
+          slug: "woof",
+          description: null,
+        });
+      });
+  });
+  test("400: wrong data type", () => {
+    const newTopic = {
+      slug: 123,
+      description: "dog",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Wrong Data type");
       });
   });
 });
