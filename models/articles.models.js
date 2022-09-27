@@ -210,7 +210,7 @@ exports.readCommentsByArticleId = (article_id, limit = 999, p) => {
   }
 
   let total_count;
-  let queryStr = `SELECT comment_id, body, author, votes, created_at FROM comments WHERE article_id=$1`;
+  let queryStr = `SELECT comment_id, body, author, votes, created_at FROM comments WHERE article_id=$1 ORDER BY created_at desc`;
   return db
     .query(`SELECT * FROM comments WHERE article_id=$1`, [article_id])
     .then(({ rowCount }) => {

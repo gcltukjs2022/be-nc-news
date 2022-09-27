@@ -441,6 +441,7 @@ describe("GET comments", () => {
         expect(Array.isArray(body.comments)).toBe(true);
         expect(body.comments.length).toBe(11);
         expect(body.total_count).toBe(11);
+        expect(body.comments).toBeSortedBy("created_at", { descending: true });
 
         body.comments.forEach((comment) => {
           expect(Object.keys(comment).length).toBe(5);
