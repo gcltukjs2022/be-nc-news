@@ -58,17 +58,36 @@ exports.readArticles = (
   topic,
   sort_by = "created_at",
   order = "DESC",
-  limit = 10,
+  limit = 999,
   p
 ) => {
-  if (isNaN(limit)) {
+  if (limit !== undefined && isNaN(limit)) {
     return Promise.reject({ status: 400, msg: "limit query must be a number" });
-  } else if (limit.length === 0) {
+  } else if (limit !== undefined && limit.length === 0) {
     return Promise.reject({ status: 400, msg: "Invalid limit query" });
   } else if (p !== undefined && isNaN(p)) {
     return Promise.reject({ status: 400, msg: "q query must be a number" });
   } else if (p !== undefined && p.length === 0) {
     return Promise.reject({ status: 400, msg: "Invalid p query" });
+  }
+
+  if (
+    topic === undefined &&
+    sort_by === "created_at" &&
+    limit === undefined &&
+    p === undefined
+  ) {
+    let queryStr = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, CAST(COUNT(comments.article_id) AS INT) AS comment_count 
+  FROM articles 
+  LEFT JOIN comments ON comments.article_id = articles.article_id 
+  GROUP BY articles.article_id 
+  ORDER BY ${sort_by} ${order}`;
+    return db.query(queryStr).then(({ rowCount }) => {
+      const total_count = rowCount;
+      return db.query(queryStr).then(({ rows }) => {
+        return { rows, total_count };
+      });
+    });
   }
 
   if (topic === undefined && sort_by === "created_at") {
@@ -87,6 +106,7 @@ exports.readArticles = (
             return { rows, total_count };
           });
       } else {
+        console.log(limit);
         return db.query(`${queryStr} LIMIT ${limit};`).then(({ rows }) => {
           return { rows, total_count };
         });
@@ -121,7 +141,8 @@ exports.readArticles = (
   if (typeof topic === "string" && topic.length === 0) {
     return Promise.reject({ status: 400, msg: "Invalid topic" });
   }
-
+  console.log("here<<<<<<<<<<<<<<<<");
+  console.log(topic);
   if (topic) {
     queryStr += `WHERE topic = $1`;
     queryValues.push(topic);
@@ -136,6 +157,8 @@ exports.readArticles = (
   } else {
     queryStr += `ORDER BY created_at `;
   }
+
+  console.log(queryStr, queryValues);
 
   let total_count;
   return db

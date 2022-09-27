@@ -174,7 +174,7 @@ describe("GET articles", () => {
       .expect(200)
       .then(({ body }) => {
         expect(Array.isArray(body.articles)).toBe(true);
-        expect(body.articles.length).toBe(10);
+        expect(body.articles.length).toBe(12);
         expect(body.total_count).toBe(12);
 
         body.articles.forEach((article) => {
@@ -228,7 +228,7 @@ describe("GET articles", () => {
       .expect(200)
       .then(({ body }) => {
         expect(Array.isArray(body.articles)).toBe(true);
-        expect(body.articles.length).toBe(10);
+        expect(body.articles.length).toBe(11);
         expect(body.total_count).toBe(11);
         expect(body.articles).toBeSortedBy("created_at", { descending: true });
 
@@ -251,7 +251,7 @@ describe("GET articles", () => {
       .expect(200)
       .then(({ body }) => {
         expect(Array.isArray(body.articles)).toBe(true);
-        expect(body.articles.length).toBe(10);
+        expect(body.articles.length).toBe(12);
         expect(body.total_count).toBe(12);
         expect(body.articles).toBeSortedBy("author", { descending: true });
       });
@@ -262,7 +262,7 @@ describe("GET articles", () => {
       .expect(200)
       .then(({ body }) => {
         expect(Array.isArray(body.articles)).toBe(true);
-        expect(body.articles.length).toBe(10);
+        expect(body.articles.length).toBe(12);
         expect(body.total_count).toBe(12);
         expect(body.articles).toBeSortedBy("author");
       });
@@ -273,7 +273,7 @@ describe("GET articles", () => {
       .expect(200)
       .then(({ body }) => {
         expect(Array.isArray(body.articles)).toBe(true);
-        expect(body.articles.length).toBe(10);
+        expect(body.articles.length).toBe(11);
         expect(body.total_count).toBe(11);
         expect(body.articles).toBeSortedBy("author");
         body.articles.forEach((article) => {
@@ -986,7 +986,6 @@ describe("POST topic", () => {
       .expect(201)
       .then(({ body }) => {
         expect(Object.keys(body.topic).length).toBe(2);
-        console.log(body);
         expect(body.topic).toMatchObject({
           slug: "woof",
           description: "dog",
