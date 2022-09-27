@@ -439,7 +439,7 @@ describe("GET comments", () => {
       .expect(200)
       .then(({ body }) => {
         expect(Array.isArray(body.comments)).toBe(true);
-        expect(body.comments.length).toBe(10);
+        expect(body.comments.length).toBe(11);
         expect(body.total_count).toBe(11);
 
         body.comments.forEach((comment) => {

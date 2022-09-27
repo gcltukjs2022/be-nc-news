@@ -106,7 +106,6 @@ exports.readArticles = (
             return { rows, total_count };
           });
       } else {
-        console.log(limit);
         return db.query(`${queryStr} LIMIT ${limit};`).then(({ rows }) => {
           return { rows, total_count };
         });
@@ -141,8 +140,7 @@ exports.readArticles = (
   if (typeof topic === "string" && topic.length === 0) {
     return Promise.reject({ status: 400, msg: "Invalid topic" });
   }
-  console.log("here<<<<<<<<<<<<<<<<");
-  console.log(topic);
+
   if (topic) {
     queryStr += `WHERE topic = $1`;
     queryValues.push(topic);
@@ -157,8 +155,6 @@ exports.readArticles = (
   } else {
     queryStr += `ORDER BY created_at `;
   }
-
-  console.log(queryStr, queryValues);
 
   let total_count;
   return db
@@ -202,7 +198,7 @@ exports.readArticles = (
     });
 };
 
-exports.readCommentsByArticleId = (article_id, limit = 10, p) => {
+exports.readCommentsByArticleId = (article_id, limit = 999, p) => {
   if (isNaN(limit)) {
     return Promise.reject({ status: 400, msg: "limit query must be a number" });
   } else if (limit.length === 0) {
