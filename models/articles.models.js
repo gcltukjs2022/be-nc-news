@@ -121,6 +121,7 @@ exports.readArticles = (
     "body",
     "created_at",
     "votes",
+    "comment_count",
   ];
 
   if (validColumns.includes(sort_by) === false) {
